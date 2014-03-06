@@ -10,12 +10,7 @@ def sha256(d):
 def flip(x):
     return bytes(reversed(x))
 
-def strip_zeros(bits):
-    while bits % 256 == 0:
-        bits >>= 8
-    return bits
-
-def gethashforpow(block):
+def get_hash_for_pow(block):
     """
     original memory layout:
         int nVersion;
@@ -47,13 +42,16 @@ def set_compact(x):
     Bit number 24 (0x800000) represents the sign of N.
     N = (-1^sign) * mantissa * 256^(exponent-3)
     """
-    word = x & (0x800000-1)
+    #word = x & (0x800000-1)
+    #size = x >> 24
+    #if size <= 3:
+    #    size = 3-size
+    #else:
+    #    size -= 3
+    #return word << (8*size)
     size = x >> 24
-    if size <= 3:
-        size = 3-size
-    else:
-        size -= 3
-    return word << (8*size)
+    size = 3-size if x > 3 else size-3
+    return (x & (0x800000-1)) >> (size*8)
 
 def generate_prime_base(has, compact_bits):
     target = 1
@@ -63,7 +61,7 @@ def generate_prime_base(has, compact_bits):
         has >>= 1
 
     significant_digits = 1 + ZEROES_BEFORE_HASH_IN_PRIME + 256
-    trailing_zeros = strip_zeros(set_compact(compact_bits))
+    trailing_zeros = set_compact(compact_bits)
     if trailing_zeros < significant_digits:
         return target, 0
     trailing_zeros -= significant_digits
@@ -105,10 +103,10 @@ def main():
         print("Usage: riecoind getblock $(riecoind getblockhash <block number>) | python3 " + sys.argv[0])
         return
 
-    assert set_compact(33869056) == (205 << 16) + (4 << 24)
+    assert set_compact(33869056) == (205) + (4 << 8)
     assert generate_prime_base(int("e2998096fcd2fb5f95f0fc9e1c57400522947db1fb00d88dfbc4c819cc9a4606", 16), 33869056)[1] == 964
     assert check_proof_of_work(
-        int.from_bytes(gethashforpow(block), byteorder="big"),
+        int.from_bytes(get_hash_for_pow(block), byteorder="big"),
         int(block["bits"], 16),
         int.from_bytes(
             flip(bytes.fromhex(block["nOffset"])),
