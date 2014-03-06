@@ -42,16 +42,9 @@ def set_compact(x):
     Bit number 24 (0x800000) represents the sign of N.
     N = (-1^sign) * mantissa * 256^(exponent-3)
     """
-    #word = x & (0x800000-1)
-    #size = x >> 24
-    #if size <= 3:
-    #    size = 3-size
-    #else:
-    #    size -= 3
-    #return word << (8*size)
     size = x >> 24
-    size = 3-size if x > 3 else size-3
-    return (x & (0x800000-1)) >> (size*8)
+    size = 3 - size if size <= 3 else size - 3
+    return (x & 0x7fffff) >> (size * 8)
 
 def generate_prime_base(has, compact_bits):
     target = 1
@@ -73,9 +66,9 @@ def is_prime(p, nchecks, do_trail_division):
     #print(p, nchecks, do_trail_division)
     return pyprimes.miller_rabin(p)
 
-def check_proof_of_work(powhash, compact_bits, delta):
-    #if powhash == genesisPoWhash: return True
-    target, trailing_zeros = generate_prime_base(powhash, compact_bits)
+def check_proof_of_work(pow_hash, compact_bits, delta):
+    #if pow_hash == genesis_pow_hash: return True
+    target, trailing_zeros = generate_prime_base(pow_hash, compact_bits)
     if trailing_zeros < 256:
         if delta >= 1 << trailing_zeros:
             raise Exception("candidate larger than allowed")
@@ -88,11 +81,12 @@ def check_proof_of_work(powhash, compact_bits, delta):
         if not is_prime(target + offset, nchecks_before, True):
             raise Exception("n+{0} not prime".format(offset))
         if len(remaining) > 1:
-            check(remaining[1:])
+            yield from check(remaining[1:])
         if nchecks_after is not None and not is_prime(target + offset, nchecks_after, False):
             raise Exception("n+{0} not prime".format(offset))
+        yield target + offset
 
-    check([(0, 1, 9), (4, 1, 9), (6, 1, 9), (10, 1, 9), (12, 1, 9), (16, 10, None)])
+    yield from check([(0, 1, 9), (4, 1, 9), (6, 1, 9), (10, 1, 9), (12, 1, 9), (16, 10, None)])
     return True
 
 def main():
@@ -105,7 +99,7 @@ def main():
 
     assert set_compact(33869056) == (205) + (4 << 8)
     assert generate_prime_base(int("e2998096fcd2fb5f95f0fc9e1c57400522947db1fb00d88dfbc4c819cc9a4606", 16), 33869056)[1] == 964
-    assert check_proof_of_work(
+    primes = check_proof_of_work(
         int.from_bytes(get_hash_for_pow(block), byteorder="big"),
         int(block["bits"], 16),
         int.from_bytes(
@@ -113,7 +107,8 @@ def main():
             byteorder="little"
         )
     )
-    print("success!")
+    for prime in primes:
+        print("prime:", prime)
 
 if __name__ == "__main__":
     main()
