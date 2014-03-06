@@ -66,6 +66,8 @@ def is_prime(p, nchecks, do_trail_division):
     #print(p, nchecks, do_trail_division)
     return pyprimes.miller_rabin(p)
 
+DONT_CHECK = len(sys.argv) > 1
+
 def check_proof_of_work(pow_hash, compact_bits, delta):
     #if pow_hash == genesis_pow_hash: return True
     target, trailing_zeros = generate_prime_base(pow_hash, compact_bits)
@@ -84,13 +86,19 @@ def check_proof_of_work(pow_hash, compact_bits, delta):
             yield from check(remaining[1:])
         if nchecks_after is not None and not is_prime(target + offset, nchecks_after, False):
             raise Exception("n+{0} not prime".format(offset))
-        yield target + offset
+        yield "n+{0} = {1}".format(offset, target + offset)
 
-    yield from check([(0, 1, 9), (4, 1, 9), (6, 1, 9), (10, 1, 9), (12, 1, 9), (16, 10, None)])
+    constellation = [(0, 1, 9), (4, 1, 9), (6, 1, 9), (10, 1, 9), (12, 1, 9), (16, 10, None)]
+
+    if DONT_CHECK:
+        yield json.dumps([target]) # integers are not valid json
+    else:
+        yield from check(constellation)
     return True
 
 def main():
-    print("reading from stdin...")
+    if not DONT_CHECK:
+        print("reading from stdin...")
     try:
         block = json.loads(sys.stdin.read())
     except ValueError:
@@ -108,7 +116,7 @@ def main():
         )
     )
     for prime in primes:
-        print("prime:", prime)
+        print(prime)
 
 if __name__ == "__main__":
     main()
