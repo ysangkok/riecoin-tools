@@ -66,9 +66,7 @@ def is_prime(p, nchecks, do_trail_division):
     #print(p, nchecks, do_trail_division)
     return pyprimes.miller_rabin(p)
 
-DONT_CHECK = len(sys.argv) > 1
-
-def check_proof_of_work(pow_hash, compact_bits, delta):
+def check_proof_of_work(pow_hash, compact_bits, delta, DONT_CHECK):
     #if pow_hash == genesis_pow_hash: return True
     target, trailing_zeros = generate_prime_base(pow_hash, compact_bits)
     if trailing_zeros < 256:
@@ -91,12 +89,25 @@ def check_proof_of_work(pow_hash, compact_bits, delta):
     constellation = [(0, 1, 9), (4, 1, 9), (6, 1, 9), (10, 1, 9), (12, 1, 9), (16, 10, None)]
 
     if DONT_CHECK:
-        yield json.dumps([target]) # integers are not valid json
+        yield from [(x[0],target+x[0]) for x in constellation]
     else:
         yield from check(constellation)
     return True
 
+def get_primes_from_block(block, DONT_CHECK = True):
+    yield from check_proof_of_work(
+        int.from_bytes(get_hash_for_pow(block), byteorder="big"),
+        int(block["bits"], 16),
+        int.from_bytes(
+            flip(bytes.fromhex(block["nOffset"])),
+            byteorder="little"
+        ),
+        DONT_CHECK
+    )
+
 def main():
+    DONT_CHECK = len(sys.argv) > 1
+
     if not DONT_CHECK:
         print("reading from stdin...")
     try:
@@ -107,14 +118,7 @@ def main():
 
     assert set_compact(33869056) == (205) + (4 << 8)
     assert generate_prime_base(int("e2998096fcd2fb5f95f0fc9e1c57400522947db1fb00d88dfbc4c819cc9a4606", 16), 33869056)[1] == 964
-    primes = check_proof_of_work(
-        int.from_bytes(get_hash_for_pow(block), byteorder="big"),
-        int(block["bits"], 16),
-        int.from_bytes(
-            flip(bytes.fromhex(block["nOffset"])),
-            byteorder="little"
-        )
-    )
+    primes = get_primes_from_block(block, DONT_CHECK)
     for prime in primes:
         print(prime)
 
