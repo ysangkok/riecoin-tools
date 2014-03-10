@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import json, hashlib, pyprimes, sys
+import json, hashlib, pyprimes, sys, time
 
 def sha256(d):
     m = hashlib.sha256()
@@ -58,7 +58,6 @@ def generate_prime_base(has, compact_bits):
     if trailing_zeros < significant_digits:
         return target, 0
     trailing_zeros -= significant_digits
-    target <<= trailing_zeros
     return target, trailing_zeros
 
 def is_prime(p, nchecks, do_trail_division):
@@ -69,6 +68,21 @@ def is_prime(p, nchecks, do_trail_division):
 def check_proof_of_work(pow_hash, compact_bits, delta, DONT_CHECK):
     #if pow_hash == genesis_pow_hash: return True
     target, trailing_zeros = generate_prime_base(pow_hash, compact_bits)
+    factorization = []
+    copy = target
+    if not DONT_CHECK:
+        yield "n = "
+        t = time.time()
+        for i, j in pyprimes.factorise(target):
+             yield "({} ^ {}) * ".format(i,j)
+             copy //= i ** j
+             factorization.append((i, j))
+             if time.time() - t > 3: break
+        yield "{} * 2 ^ {} + {}\n".format(copy, trailing_zeros, delta)
+    factorization.append((copy, 1))
+    factorization.append((2, trailing_zeros))
+
+    target <<= trailing_zeros
     if trailing_zeros < 256:
         if delta >= 1 << trailing_zeros:
             raise Exception("candidate larger than allowed")
@@ -84,12 +98,12 @@ def check_proof_of_work(pow_hash, compact_bits, delta, DONT_CHECK):
             yield from check(remaining[1:])
         if nchecks_after is not None and not is_prime(target + offset, nchecks_after, False):
             raise Exception("n+{0} not prime".format(offset))
-        yield "n+{0} = {1}".format(offset, target + offset)
+        yield "n+{0} = {1}\n".format(offset, target + offset)
 
     constellation = [(0, 1, 9), (4, 1, 9), (6, 1, 9), (10, 1, 9), (12, 1, 9), (16, 10, None)]
 
     if DONT_CHECK:
-        yield from [(x[0],target+x[0]) for x in constellation]
+        yield [(factorization, delta), [(x[0], target + x[0]) for x in constellation]]
     else:
         yield from check(constellation)
     return True
@@ -109,18 +123,18 @@ def main():
     DONT_CHECK = len(sys.argv) > 1
 
     if not DONT_CHECK:
-        print("reading from stdin...")
+        sys.stdout.buffer.write(b"reading from stdin...\n")
+        sys.stdout.buffer.flush()
     try:
         block = json.loads(sys.stdin.read())
     except ValueError:
         print("Usage: riecoind getblock $(riecoind getblockhash <block number>) | python3 " + sys.argv[0])
         return
 
-    assert set_compact(33869056) == (205) + (4 << 8)
-    assert generate_prime_base(int("e2998096fcd2fb5f95f0fc9e1c57400522947db1fb00d88dfbc4c819cc9a4606", 16), 33869056)[1] == 964
     primes = get_primes_from_block(block, DONT_CHECK)
     for prime in primes:
-        print(prime)
+        sys.stdout.buffer.write(str(prime).encode("utf-8"))
+        sys.stdout.buffer.flush()
 
 if __name__ == "__main__":
     main()
