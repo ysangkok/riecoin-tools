@@ -65,12 +65,14 @@ def is_prime(p, nchecks, do_trail_division):
     #print(p, nchecks, do_trail_division)
     return pyprimes.miller_rabin(p)
 
+FACTORIZE = False #not DONT_CHECK
+
 def check_proof_of_work(pow_hash, compact_bits, delta, DONT_CHECK):
     #if pow_hash == genesis_pow_hash: return True
     target, trailing_zeros = generate_prime_base(pow_hash, compact_bits)
     factorization = []
     copy = target
-    if not DONT_CHECK:
+    if FACTORIZE:
         yield "n = "
         t = time.time()
         for i, j in pyprimes.factorise(target):
