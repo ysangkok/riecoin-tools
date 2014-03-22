@@ -7,9 +7,6 @@ def sha256(d):
     m.update(d)
     return m.digest()
 
-def flip(x):
-    return bytes(reversed(x))
-
 def get_hash_for_pow(block):
     """
     original memory layout:
@@ -20,11 +17,14 @@ def get_hash_for_pow(block):
         int64 nTime;
         offsetType nOffset;
     """
-    b = block["version"].to_bytes(byteorder="little", length=4) + \
-        flip(bytes.fromhex(block["previousblockhash"])) + \
-        flip(bytes.fromhex(block["merkleroot"])) + \
-        flip(bytes.fromhex(block["bits"])) + \
-        flip(block["time"].to_bytes(byteorder="big", length=8))
+    b = bytearray(
+        block["time"].to_bytes(byteorder="big", length=8)
+      + bytes.fromhex(block["bits"])
+      + bytes.fromhex(block["merkleroot"])
+      + bytes.fromhex(block["previousblockhash"])
+      + block["version"].to_bytes(byteorder="big", length=4)
+    )
+    b.reverse()
     b = sha256(sha256(b))
     b = b[::-1]
     return b
@@ -114,10 +114,7 @@ def get_primes_from_block(block, DONT_CHECK = True):
     yield from check_proof_of_work(
         int.from_bytes(get_hash_for_pow(block), byteorder="big"),
         int(block["bits"], 16),
-        int.from_bytes(
-            flip(bytes.fromhex(block["nOffset"])),
-            byteorder="little"
-        ),
+        int(block["nOffset"], 16),
         DONT_CHECK
     )
 
