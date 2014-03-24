@@ -19,4 +19,4 @@ sed -i '1s/.*/threshold,count/' average_assets_by_balance.csv
 grep -A 11 "^Bitcoin value distribution based on age." < stats.csv | tail -n +2 > total_assets_and_address_count_by_age.csv # bar chart
 
 rm ~/sdb/www/stat_results/*
-cp * ~/sdb/www/stat_results/
+cp -l * ~/sdb/www/stat_results/
