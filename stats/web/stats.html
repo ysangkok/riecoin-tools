@@ -1,0 +1,67 @@
+<!doctype html>
+<head>
+<style>
+iframe {
+	display: block;
+	width: 100%;
+	border:0;
+}
+.pie {
+	height:510px;
+}
+</style>
+<body>
+<meta charset="utf-8">
+<script src="d3.js"></script>
+<script>
+function tabulate(data, columns) {
+    var table = d3.select("#container").append("table"),
+        thead = table.append("thead"),
+        tbody = table.append("tbody");
+
+    // append the header row
+    thead.append("tr")
+        .selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+            .text(function(column) { return column; });
+
+    // create a row for each object in the data
+    var rows = tbody.selectAll("tr")
+        .data(data)
+        .enter()
+        .append("tr");
+
+    // create a cell in each row for each column
+    var cells = rows.selectAll("td")
+        .data(function(row) {
+            return columns.map(function(column) {
+                return {column: column, value: row[column]};
+            });
+        })
+        .enter()
+        .append("td")
+            .text(function(d) { return d.value; });
+    
+    return table;
+}
+</script>
+<script>
+d3.csv("/stat_results/summary.csv", function(data) {
+  tabulate(data, ["Date", "February 11 2014"]);
+});
+</script>
+<h1 style="color:red">NB: All references to BTC are actually references to RIC!</h1>
+<a href="/stat_results">raw data</a>
+<h1>Summary</h1>
+<div id="container">
+</div>
+<h1>Total assets and address count by age</h1>
+<iframe src="total_assets_and_address_count_by_age.html" style="height:410px"></iframe>
+<h1>Address balance threshold counts</h1>
+<iframe src="address_balance_threshold_count.html" class="pie"></iframe>
+<h1>Total assets sum by address balance group</h1>
+<iframe src="average_assets_by_balance.html" class="pie"></iframe>
+<h1>Address balances with over 1 RIC / number of days since last transaction / Number of transactions (shade)</h1>
+<iframe src="days_value.html" style="height:550px"></iframe>
