@@ -48,7 +48,7 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.csv("/stat_results/days_value.txt", function(error, data) {
+d3.csv("/stat_results/days_value.csv", function(error, data) {
   data.forEach(function(d) {
     d.Days = +d.Days;
     d.Value = +d.Value;
