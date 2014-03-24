@@ -2,7 +2,7 @@
 import pexpect
 
 with open("logfile.txt","wb") as f:
- p = pexpect.spawn("nice ../blockchain.out ../../riecoindata/blocks", timeout=3000, logfile=f)
+ p = pexpect.spawn("nice ../blockchain.out /home/ubuntu/sdb/riecoindata/blocks", timeout=3000, logfile=f)
  p.expect("exit, quit, or bye    : Will exit this tool")
  p.sendline("statistics")
  p.expect("\\*\\*\\* WARNING : This will consume an enormous amount of memory! \\*\\*\\*")
