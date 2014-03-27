@@ -81,8 +81,8 @@ def outputs():
 				"Value": i["Output{}Value".format(idx)],
 				"Script": i["Output{}Script".format(idx)],
 				"ReceivingAddress": i["Output{}Key".format(idx)],
-				"InputTxHash": None,
-				"InputTxIndex": None,
+				"InputTxHash": None,  # also NULL in blockparser:
+				"InputTxIndex": None, # https://github.com/mcdee/blockparser/blob/master/cb/csv.cpp#L308
 			}
 
 def inputs():
