@@ -17,6 +17,8 @@ sed -i '2d' address_balance_threshold_count.csv
 grep -A 3 "^Bitcoin Public Key Address Distribution Total Value by balance." < stats.csv | tail -n2 | eval $A > average_assets_by_balance.csv # pie chart
 sed -i '1s/.*/threshold,count/' average_assets_by_balance.csv
 grep -A 11 "^Bitcoin value distribution based on age." < stats.csv | tail -n +2 > total_assets_and_address_count_by_age.csv # bar chart
+tail -n +9 < DumpByBalance.csv > short.csv
+sqlite3 db < ../balances.sql
 
 rm ~/sdb/www/stat_results/*
 cp -l * ~/sdb/www/stat_results/
