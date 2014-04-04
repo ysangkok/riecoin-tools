@@ -1,0 +1,3 @@
+[submodule "stats/web/inlineDiscussions"]
+	path = stats/web/inlineDiscussions
+	url = git@github.com:tsi/inlineDisqussions.git
