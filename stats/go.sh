@@ -20,7 +20,7 @@ grep -A 11 "^Bitcoin value distribution based on age." < stats.csv | tail -n +2 
 tail -n +9 < DumpByBalance.csv > short.csv
 sqlite3 db < ../balances.sql
 
-curl -0 -L "https://disqus.com/api/3.0/threads/list.json?api_key=EsrhQtVJnVToLoFVqVfSqf2SUibRkYaanzLZtRBgVKePYTuptD5QKKR11STdm7nd&related=author&forum=riecoin-rich-list" | ./genmap.py > best_comments.json
+curl -0 -L "https://disqus.com/api/3.0/posts/list.json?api_key=EsrhQtVJnVToLoFVqVfSqf2SUibRkYaanzLZtRBgVKePYTuptD5QKKR11STdm7nd&related=thread&forum=riecoin-rich-list" | ../genmap.py > best_comments.json
 
 rm ~/sdb/www/stat_results/*
 cp -l * ~/sdb/www/stat_results/
