@@ -7,6 +7,7 @@
 <link rel="stylesheet" type="text/css" href="inlineDiscussions/inlineDisqussions.css" />
 <style>
 body { display: inline-block; }
+table { width: 0; }
 </style>
 <body>
 <table>
@@ -32,7 +33,7 @@ jQuery(document).ready(function() {
 
 function processData(allText, comments) {
     var allTextLines = allText.split(/\r\n|\n/);
-    allTextLines = allTextLines.slice(0,250);
+    allTextLines = allTextLines.slice(0,500);
     var rng = allTextLines.length;
     var last = 0;
     var j = 0;
