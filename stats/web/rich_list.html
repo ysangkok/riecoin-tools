@@ -31,11 +31,12 @@ jQuery(document).ready(function() {
 
 function processData(allText) {
     var allTextLines = allText.split(/\r\n|\n/);
-    var rng = Math.min(1000,allTextLines.length);
+    allTextLines = allTextLines.slice(0,250);
+    var rng = allTextLines.length;
     var last = 0;
     var j = 0;
     while (last < rng) {
-        for (var i=last; i<last+100; i++) {
+        for (var i=last; i<last+100 && i<rng; i++) {
             var data = allTextLines[i].split(',');
             if (data.length === 3) {
                 jQuery("table").append("<tr>" + "<td>" + data[0] + "<td>" + data[1] + "<td class='days" + j + "' data-disqus-identifier='" + data[0] + "'>" + data[2]);
@@ -44,6 +45,6 @@ function processData(allText) {
         var last = i;
         //j++;
     }
-    setTimeout(function() { jQuery(".days" + j).inlineDisqussions({identifier: 'disqussion-' + j + "-"});},0);
+    setTimeout(function() { jQuery(".days" + j).inlineDisqussions();},0);
 }
 </script>
