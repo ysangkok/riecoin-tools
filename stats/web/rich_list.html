@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="inlineDiscussions/inlineDisqussions.js"></script>
+<link rel="stylesheet" type="text/css" href="inlineDiscussions/inlineDisqussions.css" />
+<style>
+body, span { display: inline-block; }
+span.days { padding-left: 1em; float: right; width: 2em; }
+span.adr { float:left; padding-right: 1em; }
+p { text-align: right; }
+</style>
+<body>
+<table>
+<tr><th>Address<th>Amount (RIC)<th>Days since last use
+</table>
+<h1>Main Comment Thread</h1>
+<div id="disqus_thread">
+</div>
+<script>
+disqus_shortname = 'riecoin-rich-list';
+jQuery(document).ready(function() {
+  $.ajax({
+      type: "GET",
+      url: "/stat_results/short.csv",
+      dataType: "text",
+      success: function(data) {processData(data);}
+   });
+});
+
+function processData(allText) {
+    var allTextLines = allText.split(/\\r\\n|\\n/);
+    var rng = Math.min(1000,allTextLines.length);
+    var last = 0;
+    var j = 0;
+    while (last < rng) {
+        for (var i=last; i<last+100; i++) {
+            var data = allTextLines[i].split(',');
+            if (data.length === 3) {
+                jQuery("table").append("<tr>" + "<td>" + data[0] + "<td>" + data[1] + "<td class='days" + j + "' data-disqus-identifier='" + data[0] + "'>" + data[2]);
+            }
+        }
+        var last = i;
+        //j++;
+    }
+    setTimeout(function() { jQuery(".days" + j).inlineDisqussions({identifier: 'disqussion-' + j + "-"});},0);
+}
+</script>
