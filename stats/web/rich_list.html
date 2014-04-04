@@ -29,7 +29,7 @@ jQuery(document).ready(function() {
    });
 });
 
-function processData(allText) {
+function processData(allText, comments) {
     var allTextLines = allText.split(/\r\n|\n/);
     allTextLines = allTextLines.slice(0,250);
     var rng = allTextLines.length;
