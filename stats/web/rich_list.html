@@ -39,7 +39,7 @@ function processData(allText, comments) {
         for (var i=last; i<last+100 && i<rng; i++) {
             var data = allTextLines[i].split(',');
             if (data.length === 3) {
-                jQuery("table").append("<tr>" + "<td id='" + data[0] + "'>" + data[0] + "<td>" + data[1] + "<td class='days" + j + "' data-disqus-identifier='" + data[0] + "'>" + data[2] + "<td class='comment'>" + (comments[data[0]] || ""));
+                jQuery("table").append("<tr>" + "<td id='" + data[0] + "'>" + data[0] + "<td>" + data[1] + "<td class='days" + j + "'>" + data[2] + "<td class='comment' data-disqus-identifier='" + data[0] + "'>" + (comments[data[0]] || ""));
             }
         }
         var last = i;
