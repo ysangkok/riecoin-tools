@@ -45,6 +45,7 @@ function processData(allText) {
         var last = i;
         //j++;
     }
+    try { $(location.hash)[0].scrollIntoView(true); } catch (e) {}
     setTimeout(function() { jQuery(".days" + j).inlineDisqussions();},0);
 }
 </script>
