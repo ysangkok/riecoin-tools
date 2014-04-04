@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 <head>
+<title>Riecoin Rich List</title>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script src="inlineDiscussions/inlineDisqussions.js"></script>
 <link rel="stylesheet" type="text/css" href="inlineDiscussions/inlineDisqussions.css" />
@@ -29,7 +30,7 @@ jQuery(document).ready(function() {
 });
 
 function processData(allText) {
-    var allTextLines = allText.split(/\\r\\n|\\n/);
+    var allTextLines = allText.split(/\r\n|\n/);
     var rng = Math.min(1000,allTextLines.length);
     var last = 0;
     var j = 0;
