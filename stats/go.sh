@@ -20,5 +20,7 @@ grep -A 11 "^Bitcoin value distribution based on age." < stats.csv | tail -n +2 
 tail -n +9 < DumpByBalance.csv > short.csv
 sqlite3 db < ../balances.sql
 
+curl -0 -L "https://disqus.com/api/3.0/threads/list.json?api_key=EsrhQtVJnVToLoFVqVfSqf2SUibRkYaanzLZtRBgVKePYTuptD5QKKR11STdm7nd&related=author&forum=riecoin-rich-list" | python3 -c "import sys,json,itertools,collections; l = list(itertools.chain.from_iterable([[(i, (x['userScore'], x['message'])) for i in x['identifiers']] for x in json.loads(sys.stdin.read())['response'] if x['userScore'] >= 0 and len(x['message']) > 0])); a = collections.defaultdict(lambda: (-1,"")); a.update((x[0], x[1]) for x in l if x[1][0] > a[x[0]][0]); print(json.dumps(a))" > best_comments.json
+
 rm ~/sdb/www/stat_results/*
 cp -l * ~/sdb/www/stat_results/

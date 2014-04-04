@@ -6,14 +6,10 @@
 <script src="inlineDiscussions/inlineDisqussions.js"></script>
 <link rel="stylesheet" type="text/css" href="inlineDiscussions/inlineDisqussions.css" />
 <style>
-body, span { display: inline-block; }
-span.days { padding-left: 1em; float: right; width: 2em; }
-span.adr { float:left; padding-right: 1em; }
-p { text-align: right; }
 </style>
 <body>
 <table>
-<tr><th>Address<th>Amount (RIC)<th>Days since last use
+<tr><th>Address<th>Amount (RIC)<th>Days since last use<th>Comment
 </table>
 <h1>Main Comment Thread</h1>
 <div id="disqus_thread">
@@ -25,7 +21,11 @@ jQuery(document).ready(function() {
       type: "GET",
       url: "/stat_results/short.csv",
       dataType: "text",
-      success: function(data) {processData(data);}
+      success: function(data) {
+        $.ajax({"type": "GET", url: "/stat_results/best_comments.json", dataType: "json", cache: false, success: function(comments) {
+                processData(data, comments);
+        }});
+        }
    });
 });
 
@@ -39,13 +39,13 @@ function processData(allText) {
         for (var i=last; i<last+100 && i<rng; i++) {
             var data = allTextLines[i].split(',');
             if (data.length === 3) {
-                jQuery("table").append("<tr>" + "<td id='" + data[0] + "'>" + data[0] + "<td>" + data[1] + "<td class='days" + j + "' data-disqus-identifier='" + data[0] + "'>" + data[2]);
+                jQuery("table").append("<tr>" + "<td id='" + data[0] + "'>" + data[0] + "<td>" + data[1] + "<td class='days" + j + "' data-disqus-identifier='" + data[0] + "'>" + data[2] + "<td class='comment'>" + (comments[data[0]] || ""));
             }
         }
         var last = i;
         //j++;
     }
     try { $(location.hash)[0].scrollIntoView(true); } catch (e) {}
-    setTimeout(function() { jQuery(".days" + j).inlineDisqussions();},0);
+    setTimeout(function() { jQuery(".comment" + j).inlineDisqussions();},0);
 }
 </script>
